@@ -4,8 +4,10 @@
 name: Publish package
 
 on:
-  release:
-    types: [published]
+#  release:
+#    types: [published]
+  push: 
+    branches: ["action-setup"]
 
 jobs:
   publish:
