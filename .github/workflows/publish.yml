@@ -28,4 +28,4 @@ jobs:
             gpg-private-key: ${{ secrets.GPG_KEY }}
 
       - name: Publish package to the Maven Central Repository
-        run: mvn --batch-mode deploy
+        run: mvn --batch-mode
