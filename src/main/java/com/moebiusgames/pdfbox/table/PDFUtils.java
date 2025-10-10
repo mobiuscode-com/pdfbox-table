@@ -42,26 +42,25 @@ public final class PDFUtils {
     public static final float POINTS_PER_INCH = 72;
     public static final float MM_TO_POINTS_72DPI = 1 / (10 * 2.54f) * POINTS_PER_INCH;
 
-    private static final Map<String, String> BOLD_FONT_VARIANTS = new HashMap<>();
+    private static final Map<Standard14Fonts.FontName, Standard14Fonts.FontName> BOLD_FONT_VARIANTS = new HashMap<>();
 
     static {
         NO_BORDER.setLineWidth(0);
-        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.COURIER.getName(), 
-                Standard14Fonts.FontName.COURIER_BOLD.getName());
-        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.HELVETICA.getName(), 
-                Standard14Fonts.FontName.HELVETICA_BOLD.getName());
-        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.TIMES_ROMAN.getName(), 
-                Standard14Fonts.FontName.TIMES_BOLD.getName());
+        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.COURIER, 
+                Standard14Fonts.FontName.COURIER_BOLD);
+        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.HELVETICA, 
+                Standard14Fonts.FontName.HELVETICA_BOLD);
+        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.TIMES_ROMAN, 
+                Standard14Fonts.FontName.TIMES_BOLD);
     }
 
     public static PDFont getBoldVariant(PDFont font) {
-        String boldName = BOLD_FONT_VARIANTS.get(font.getName());
-        if (boldName == null) {
+        Standard14Fonts.FontName fontName = Standard14Fonts.getMappedFontName(font.getName());
+        Standard14Fonts.FontName boldVariant = BOLD_FONT_VARIANTS.get(fontName);
+        if (boldVariant == null) {
             return new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD); //<- default
         }
-        Standard14Fonts.FontName fontName = Standard14Fonts.FontName.valueOf(
-                boldName.replace("-", "_").toUpperCase());
-        return new PDType1Font(fontName);
+        return new PDType1Font(boldVariant);
     }
 
     public static byte[] renderPDF(PDDocument doc) throws IOException {
