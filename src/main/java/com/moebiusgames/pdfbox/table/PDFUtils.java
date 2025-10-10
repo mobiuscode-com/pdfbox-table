@@ -74,18 +74,29 @@ public final class PDFUtils {
     }
 
     public static PDFont modifyFont(PDFont font, Set<FontModifier> modifiers) {
+        Standard14Fonts.FontName fontName = Standard14Fonts.getMappedFontName(font.getName());
         final Standard14Fonts.FontName baseFont;
-        String fontName = font.getName();
         
-        if (fontName.startsWith("Times")) {
+        if (fontName == Standard14Fonts.FontName.TIMES_ROMAN
+                || fontName == Standard14Fonts.FontName.TIMES_BOLD
+                || fontName == Standard14Fonts.FontName.TIMES_ITALIC
+                || fontName == Standard14Fonts.FontName.TIMES_BOLD_ITALIC) {
             baseFont = Standard14Fonts.FontName.TIMES_ROMAN;
-        } else if (fontName.startsWith("Courier")) {
-            baseFont = Standard14Fonts.FontName.COURIER;
-        } else if (fontName.startsWith("Helvetica")) {
-            baseFont = Standard14Fonts.FontName.HELVETICA;
-        } else {
-            throw new IllegalArgumentException("This font is not supported");
-        }
+        } else
+            if (fontName == Standard14Fonts.FontName.COURIER
+                    || fontName == Standard14Fonts.FontName.COURIER_BOLD
+                    || fontName == Standard14Fonts.FontName.COURIER_OBLIQUE
+                    || fontName == Standard14Fonts.FontName.COURIER_BOLD_OBLIQUE) {
+                baseFont = Standard14Fonts.FontName.COURIER;
+            } else
+                if (fontName == Standard14Fonts.FontName.HELVETICA
+                        || fontName == Standard14Fonts.FontName.HELVETICA_BOLD
+                        || fontName == Standard14Fonts.FontName.HELVETICA_OBLIQUE
+                        || fontName == Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE) {
+                    baseFont = Standard14Fonts.FontName.HELVETICA;
+                } else {
+                    throw new IllegalArgumentException("This font is not supported");
+                }
 
         if (baseFont == Standard14Fonts.FontName.TIMES_ROMAN) {
             if (modifiers.contains(FontModifier.BOLD)
