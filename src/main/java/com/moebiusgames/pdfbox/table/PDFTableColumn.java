@@ -26,6 +26,7 @@ package com.moebiusgames.pdfbox.table;
 import java.awt.Color;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 /**
  * a prototypic class that contains all information
@@ -39,11 +40,11 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 public class PDFTableColumn {
 
     private int fontSize = 10;
-    private PDFont font = PDType1Font.HELVETICA;
+    private PDFont font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
     private Align align = Align.LEFT;
 
     private Integer headingFontSize = null;
-    private PDFont headingFont = PDType1Font.HELVETICA_BOLD;
+    private PDFont headingFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
     private Align headingAlign = null;
     private Color headingFontColor = null;
     private Color headingBackgroundColor = null;

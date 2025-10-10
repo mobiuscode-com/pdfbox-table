@@ -33,6 +33,7 @@ import java.util.Set;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 public final class PDFUtils {
 
@@ -41,21 +42,25 @@ public final class PDFUtils {
     public static final float POINTS_PER_INCH = 72;
     public static final float MM_TO_POINTS_72DPI = 1 / (10 * 2.54f) * POINTS_PER_INCH;
 
-    private static final Map<PDFont, PDFont> BOLD_FONT_VARIANTS = new HashMap<>();
+    private static final Map<Standard14Fonts.FontName, Standard14Fonts.FontName> BOLD_FONT_VARIANTS = new HashMap<>();
 
     static {
         NO_BORDER.setLineWidth(0);
-        BOLD_FONT_VARIANTS.put(PDType1Font.COURIER, PDType1Font.COURIER_BOLD);
-        BOLD_FONT_VARIANTS.put(PDType1Font.HELVETICA, PDType1Font.HELVETICA_BOLD);
-        BOLD_FONT_VARIANTS.put(PDType1Font.TIMES_ROMAN, PDType1Font.TIMES_BOLD);
+        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.COURIER, 
+                Standard14Fonts.FontName.COURIER_BOLD);
+        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.HELVETICA, 
+                Standard14Fonts.FontName.HELVETICA_BOLD);
+        BOLD_FONT_VARIANTS.put(Standard14Fonts.FontName.TIMES_ROMAN, 
+                Standard14Fonts.FontName.TIMES_BOLD);
     }
 
     public static PDFont getBoldVariant(PDFont font) {
-        PDFont result = BOLD_FONT_VARIANTS.get(font);
-        if (result == null) {
-            result = PDType1Font.HELVETICA_BOLD; //<- default
+        Standard14Fonts.FontName fontName = Standard14Fonts.getMappedFontName(font.getName());
+        Standard14Fonts.FontName boldVariant = BOLD_FONT_VARIANTS.get(fontName);
+        if (boldVariant == null) {
+            return new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD); //<- default
         }
-        return result;
+        return new PDType1Font(boldVariant);
     }
 
     public static byte[] renderPDF(PDDocument doc) throws IOException {
@@ -69,74 +74,76 @@ public final class PDFUtils {
     }
 
     public static PDFont modifyFont(PDFont font, Set<FontModifier> modifiers) {
-        final PDFont baseFont;
-        if (font.equals(PDType1Font.TIMES_ROMAN)
-                || font.equals(PDType1Font.TIMES_BOLD)
-                || font.equals(PDType1Font.TIMES_ITALIC)
-                || font.equals(PDType1Font.TIMES_BOLD_ITALIC)) {
-            baseFont = PDType1Font.TIMES_ROMAN;
+        Standard14Fonts.FontName fontName = Standard14Fonts.getMappedFontName(font.getName());
+        final Standard14Fonts.FontName baseFont;
+        
+        if (fontName == Standard14Fonts.FontName.TIMES_ROMAN
+                || fontName == Standard14Fonts.FontName.TIMES_BOLD
+                || fontName == Standard14Fonts.FontName.TIMES_ITALIC
+                || fontName == Standard14Fonts.FontName.TIMES_BOLD_ITALIC) {
+            baseFont = Standard14Fonts.FontName.TIMES_ROMAN;
         } else
-            if (font.equals(PDType1Font.COURIER)
-                    || font.equals(PDType1Font.COURIER_BOLD)
-                    || font.equals(PDType1Font.COURIER_OBLIQUE)
-                    || font.equals(PDType1Font.COURIER_BOLD_OBLIQUE)) {
-                baseFont = PDType1Font.COURIER;
+            if (fontName == Standard14Fonts.FontName.COURIER
+                    || fontName == Standard14Fonts.FontName.COURIER_BOLD
+                    || fontName == Standard14Fonts.FontName.COURIER_OBLIQUE
+                    || fontName == Standard14Fonts.FontName.COURIER_BOLD_OBLIQUE) {
+                baseFont = Standard14Fonts.FontName.COURIER;
             } else
-                if (font.equals(PDType1Font.HELVETICA)
-                        || font.equals(PDType1Font.HELVETICA_BOLD)
-                        || font.equals(PDType1Font.HELVETICA_OBLIQUE)
-                        || font.equals(PDType1Font.HELVETICA_BOLD_OBLIQUE)) {
-                    baseFont = PDType1Font.HELVETICA;
+                if (fontName == Standard14Fonts.FontName.HELVETICA
+                        || fontName == Standard14Fonts.FontName.HELVETICA_BOLD
+                        || fontName == Standard14Fonts.FontName.HELVETICA_OBLIQUE
+                        || fontName == Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE) {
+                    baseFont = Standard14Fonts.FontName.HELVETICA;
                 } else {
                     throw new IllegalArgumentException("This font is not supported");
                 }
 
-        if (baseFont == PDType1Font.TIMES_ROMAN) {
+        if (baseFont == Standard14Fonts.FontName.TIMES_ROMAN) {
             if (modifiers.contains(FontModifier.BOLD)
                     && modifiers.contains(FontModifier.ITALIC)) {
-                return PDType1Font.TIMES_BOLD_ITALIC;
+                return new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD_ITALIC);
             }
 
             if (modifiers.contains(FontModifier.BOLD)) {
-                return PDType1Font.TIMES_BOLD;
+                return new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD);
             }
 
             if (modifiers.contains(FontModifier.ITALIC)) {
-                return PDType1Font.TIMES_ITALIC;
+                return new PDType1Font(Standard14Fonts.FontName.TIMES_ITALIC);
             }
 
-            return baseFont;
+            return new PDType1Font(baseFont);
         } else
-            if (baseFont == PDType1Font.COURIER) {
+            if (baseFont == Standard14Fonts.FontName.COURIER) {
                 if (modifiers.contains(FontModifier.BOLD)
                         && modifiers.contains(FontModifier.ITALIC)) {
-                    return PDType1Font.COURIER_BOLD_OBLIQUE;
+                    return new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD_OBLIQUE);
                 }
 
                 if (modifiers.contains(FontModifier.BOLD)) {
-                    return PDType1Font.COURIER_BOLD;
+                    return new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD);
                 }
 
                 if (modifiers.contains(FontModifier.ITALIC)) {
-                    return PDType1Font.COURIER_OBLIQUE;
+                    return new PDType1Font(Standard14Fonts.FontName.COURIER_OBLIQUE);
                 }
 
-                return baseFont;
+                return new PDType1Font(baseFont);
             } else {
                 if (modifiers.contains(FontModifier.BOLD)
                         && modifiers.contains(FontModifier.ITALIC)) {
-                    return PDType1Font.HELVETICA_BOLD_OBLIQUE;
+                    return new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD_OBLIQUE);
                 }
 
                 if (modifiers.contains(FontModifier.BOLD)) {
-                    return PDType1Font.HELVETICA_BOLD;
+                    return new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
                 }
 
                 if (modifiers.contains(FontModifier.ITALIC)) {
-                    return PDType1Font.HELVETICA_OBLIQUE;
+                    return new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
                 }
 
-                return baseFont;
+                return new PDType1Font(baseFont);
             }
     }
 
